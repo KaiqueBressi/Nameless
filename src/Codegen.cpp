@@ -5,6 +5,11 @@ void Context::generate_code(BlockAST *block)
 	block->Codegen(*this);
 }
 
+void Context::run_code()
+{
+
+}
+
 void IdentifierAST::Codegen(Context &context)
 {
 	printf("This is a identifier\n");
@@ -30,7 +35,7 @@ void DoubleAST::Codegen(Context &context)
 
 void IntegerAST::Codegen(Context &context)
 {
-	// Testando 
+
 }
 
 void BlockAST::Codegen(Context &context)
