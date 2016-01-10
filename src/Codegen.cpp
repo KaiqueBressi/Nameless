@@ -7,7 +7,7 @@ void Context::generate_code(BlockAST *block)
 
 void Context::run_code()
 {
-
+	
 }
 
 void IdentifierAST::Codegen(Context &context)
@@ -17,7 +17,7 @@ void IdentifierAST::Codegen(Context &context)
 
 void BinaryExprAST::Codegen(Context &context)
 {
-
+	
 }
 
 void AssignmentAST::Codegen(Context &context)
@@ -35,7 +35,7 @@ void DoubleAST::Codegen(Context &context)
 
 void IntegerAST::Codegen(Context &context)
 {
-
+	
 }
 
 void BlockAST::Codegen(Context &context)
@@ -46,5 +46,5 @@ void BlockAST::Codegen(Context &context)
 
 void MethodAST::Codegen(Context &context)
 {
-
+	
 }

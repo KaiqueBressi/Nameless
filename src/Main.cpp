@@ -2,7 +2,14 @@
 
 int main(void)
 {
-	Lexer lex("abc = 6 / (5 * 7 * 8) - 5;;;;;;\n");
+	std::ifstream file("example.nl");
+	std::string content((std::istreambuf_iterator<char>(file)),
+                 std::istreambuf_iterator<char>());
+
+	file.close();
+
+	Lexer lex(content);
+	//Lexer lex("abc = 6 / (5 * 7 * 8) - 5;;;;;;\n");
 	Parser parse(lex);
 	parse.parse();
 

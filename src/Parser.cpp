@@ -5,23 +5,15 @@ Parser::Parser(Lexer lexer)
 	*lex = lexer;
 
 	*current_token = lex->next_token();
-	
-	//*peek_next_token = lex->next_token();
 }
 
 void Parser::parse()
 {
-	BlockAST *b = block();
-
-	Context cod = Context();
-	cod.generate_code(b);
+	function_list();
 }
 
 void Parser::next_token()
 {
-	//*current_token = *peek_next_token;
-	//*peek_next_token = lex->next_token();
-
 	*current_token = lex->next_token();
 }
 
@@ -54,8 +46,13 @@ bool Parser::test_check_next(Token_Type type)
 
 void Parser::unexpected_token()
 {
-	std::cout << "Idiota " + lex->type2name(current_token->type) << std::endl;
+	std::cout << "unexpected token " + lex->type2name(current_token->type) << std::endl;
 	exit(0);
+}
+
+void Parser::eat_eol()
+{
+	while (test_check_next(TK_EOL));
 }
 
 /*
@@ -151,8 +148,19 @@ ExprAST *Parser::simple_expression()
 		case TK_NIL:
 			next_token();
 			break;
+		case TK_IDENTIFIER:
+			next_token();
+
+			//Don't forget the assignment AST here
+			break;
+		case TK_OPENPAR:
+			next_token();
+			expression();
+			check_next(TK_CLOSEPAR);
+			break;
 		default:
-			return suffixed_expression();
+			unexpected_token();
+			break;
 	}
 
 	return NULL;
@@ -187,24 +195,20 @@ ExprAST *Parser::primary_expression()
 
 ExprAST *Parser::expr_statement()
 {
-	// call() | ident '=' expression
-
-	ExprAST *lhs = suffixed_expression();
-	
-	if (test_check_next(TK_EQUAL)) {
-		// This is an assignment
-
-		ExprAST *rhs = expression();
-		return new AssignmentAST(lhs, rhs);
-	} else {
-		// Method call here
-	}
-
+	simple_expression();
 	return NULL;
 }
 
 ExprAST *Parser::arglist()
 {
+	while (test_check_next(TK_IDENTIFIER) || test_check_next(TK_CONSTANT))
+	{
+		if (test_check_next(TK_COMMA))
+		{
+			// Insira vários nadas aqui
+		}
+	} 
+
 	return NULL;
 }
 
@@ -214,9 +218,54 @@ ExprAST *Parser::function()
 
 	if (test_check_next(TK_IDENTIFIER) || test_check_next(TK_CONSTANT))
 	{
-		check_next(TK_OPENPAR);	
-		arglist();
+		eat_eol();
+		
+		while (current_token->type == TK_OPENPAR)
+		{
+			next_token();
+
+			arglist();
+			check_next(TK_CLOSEPAR);
+
+			check_next(TK_EQUAL);
+
+			eat_eol();
+
+			statement_block();
+
+			eat_eol();
+		}
 	}
+
+	return NULL;
+}
+
+ExprAST *Parser::statement_block()
+{
+	if (test_check_next(TK_OPENBRAC))
+	{
+		while(current_token->type != TK_CLOSEBRAC)
+		{
+			std::cout << "C blocks" << std::endl;
+
+			statement();
+			eat_eol();
+		}
+
+		check_next(TK_CLOSEBRAC);
+	} else {
+		while(current_token->type != TK_EOL)
+		{
+			std::cout << "No blocks sorry" << std::endl;
+
+			statement();
+
+			if (current_token->type != TK_SEMICOLON)
+				break;
+		}
+	}
+
+	return NULL;
 }
 
 ExprAST *Parser::statement()
@@ -235,12 +284,32 @@ ExprAST *Parser::statement()
 			break;
 		case TK_WHILE:
 			break;
-		case TK_DEF:
-			return function();
 		default:
 			return expr_statement();
 			break;
 	}
+
+	return NULL;
+}
+
+ExprAST *Parser::function_list()
+{
+	switch(current_token->type)
+	{
+		case TK_DEF:
+			return function();
+		case TK_EOL:
+			next_token();
+
+			if (current_token->type != TK_EOF)
+				return function_list();
+
+			break;
+		default:
+			unexpected_token();
+			break;
+	}
+
 
 	return NULL;
 }

@@ -21,7 +21,11 @@ enum Token_Type {
 	TK_PLUSEQUAL, 				// Symbol +=
 	TK_MINUSEQUAL,				// Symbol -=
 
+	TK_COMMA,					// Symbol ,
 	TK_SEMICOLON, 				// Symbol ;
+
+	TK_OPENBRAC,				// Symbol {
+	TK_CLOSEBRAC,				// Symbol }
 
 	TK_OPENPAR,					// Symbol (
 	TK_CLOSEPAR,				// Symbol )
@@ -62,7 +66,11 @@ const std::vector<std::string> token_names = {
 	"+=",
 	"-=",
 
+	",",
 	";",
+
+	"{",
+	"}",
 
 	"(",
 	")",	

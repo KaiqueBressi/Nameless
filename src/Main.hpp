@@ -5,4 +5,7 @@
 #include "Parser.hpp"
 #include "Codegen.hpp"
 
+#include <fstream>
+#include <streambuf>
+
 #endif

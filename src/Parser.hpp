@@ -29,14 +29,16 @@ class Parser
 		bool check_end();
 		bool test_check_next(Token_Type type);
 		void unexpected_token();
+		void eat_eol();
 		
 		bool block_follow();
+		ExprAST *function_list();
+		ExprAST *statement_block();
 		struct precedence get_precedence(Token_Type type);
 
 		ExprAST *expression();
 		ExprAST *subexpression(ExprAST *lhs, int limit = 0);
 
-		//ExprAST *arglist();
 		ExprAST *simple_expression();
 		ExprAST *primary_expression();
 		ExprAST *suffixed_expression();
@@ -48,7 +50,6 @@ class Parser
 
 		Lexer *lex = new Lexer();
 		Token *current_token = new Token(TK_UNKNOW);
-		Token *peek_next_token = new Token(TK_UNKNOW);
 };
 
 #endif

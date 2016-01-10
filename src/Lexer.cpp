@@ -14,11 +14,7 @@ Lexer::Lexer(std::string input)
 
 std::string Lexer::type2name(Token_Type type)
 {
-	for (unsigned int i; i < token_names.size(); i++)
-		if ((unsigned int)type == i)
-			return token_names[i];
-
-	return "";
+	return token_names[(int)type];
 }
 
 Token Lexer::next_token()
@@ -42,6 +38,9 @@ Token Lexer::next_token()
 			case '\n':
 				next_char();
 				return Token(TK_EOL);
+			case ',':
+				next_char();
+				return Token(TK_COMMA);
 			case ';':
 				next_char();
 				return Token(TK_SEMICOLON);
@@ -51,6 +50,12 @@ Token Lexer::next_token()
 			case ')':
 				next_char();
 				return Token(TK_CLOSEPAR);
+			case '{':
+				next_char();
+				return Token(TK_OPENBRAC);
+			case '}':
+				next_char();
+				return Token(TK_CLOSEBRAC);
 			case '=': 
 				next_char();
 
