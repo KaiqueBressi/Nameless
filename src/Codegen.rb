@@ -3,10 +3,28 @@ class Function
 	attr_accessor :definitions
 	attr_accessor :header
 
-	def initialize name, definitions = [], header = []
+	def initialize name, definitions = [], header = nil
 		@name = name
 		@definitions = definitions
 		@header = header
+	end
+
+	def codegen
+		k = 0
+
+		for func_definition in definitions
+			if func_definition.arglist.count != (header.type_list.count - 1)
+				raise "Número de argumentos diferente do que da declaração"
+			end
+
+			case func_definition.arglist[k]
+			when 
+			end
+
+			k += 1
+
+			func_definition.codegen
+		end
 	end
 end
 

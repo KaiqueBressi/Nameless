@@ -223,5 +223,5 @@ end
 f = File.open("test.nl", "r") 
 l = Lexer.new f.read
 p = Parser.new(l)
-p.parse[0].definitions[0].block[0].codegen
+p.parse[0].codegen
 f.close
