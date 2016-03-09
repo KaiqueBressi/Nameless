@@ -17,8 +17,16 @@ class Function
 				raise "Número de argumentos diferente do que da declaração"
 			end
 
-			case func_definition.arglist[k]
-			when 
+			puts func_definition.inspect
+
+			if func_definition.arglist.count > 0
+				case func_definition.arglist[k].type
+				when :TK_IDENTIFIER
+				when :TK_NUMBER
+					if header.type_list[k - 1].type != :TK_INT
+						raise "Definição da função incompativel com seus respectivos tipos"
+					end
+				end
 			end
 
 			k += 1
@@ -39,8 +47,8 @@ class FunctionDefinition
 		@block = block
 		@argcount = arglist.size
 		@bytecode = []
-		codegen
-		puts bytecode.inspect
+		#codegen
+		#puts bytecode.inspect
 	end
 
 	def codegen
@@ -49,6 +57,26 @@ class FunctionDefinition
 		end
 
 		bytecode << :VM_RETV
+	end
+end
+
+class FunctionCall
+	attr_accessor :name
+	attr_accessor :args
+
+	def initialize name, args = []
+		@name = name
+		@args = args
+	end
+
+	def codegen
+		code = []
+
+		args.each do |a|
+			code.concat(a.codegen)
+		end
+
+		return code.concat([:VM_CALL, name])
 	end
 end
 
@@ -68,23 +96,19 @@ class Number
 	end
 
 	def codegen
-		[]
+		return [:VM_PUSH, value]
 	end
 end
 
 class Identifier
 	attr_accessor :name
 
-	def initialize name
+	def initialize name = ""
 		@name = name
 	end
 
 	def codegen
-		code = []
-		code << :VM_PUSH
-		code << :"#{name}"
-
-		return code
+		return [:VM_PUSH, "#{name}"]
 	end
 end
 

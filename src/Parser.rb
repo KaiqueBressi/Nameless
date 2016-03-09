@@ -34,6 +34,18 @@ class Parser
         current_token.type == token_type ? (next_token; true) : (puts token_type; unexpected_token; false)
     end
 
+    def multiple_check_next tokens_type, ignore_eol = true
+        return (next_token; multiple_check_next(tokens_type)) if (current_token.type == :TK_EOL) and (ignore_eol)
+
+        tokens_type.include?(current_token.type) ? (next_token; true) : (unexpected_token; false)
+    end
+
+    def multiple_test_check_next tokens_type, ignore_eol = true
+        return (next_token; multiple_test_check_next(tokens_type)) if (current_token.type == :TK_EOL) and (ignore_eol)
+
+        tokens_type.include?(current_token.type) ? (next_token; true) : (false)
+    end
+
     def check_end
         (test_check_next :TK_EOF) or (test_check_next :TK_EOL) or (test_check_next :SEMICOLON)
     end
@@ -66,12 +78,12 @@ class Parser
     end
 
     def arglist essential = false, args = []
-        argument_name = current_token.value
+        argument = current_token
 
         if essential == true
-            args << argument_name if check_next :TK_IDENTIFIER, false
+            args << argument if multiple_check_next [:TK_IDENTIFIER, :TK_NUMBER], false
         else
-            args << argument_name if test_check_next :TK_IDENTIFIER, false
+            args << argument if multiple_test_check_next [:TK_IDENTIFIER, :TK_NUMBER], false
         end
 
         if current_token.type == :TK_COMMA
@@ -83,12 +95,12 @@ class Parser
     end
 
     def type_definition essential = false, type_list = []
-        type_name = current_token.value
+        type = current_token
 
         if essential == true
-            type_list << type_name if check_next :TK_INT, false
+            type_list << type if check_next :TK_INT, false
         else
-            type_list << type_name if test_check_next :TK_INT, false
+            type_list << type if test_check_next :TK_INT, false
         end
 
         if current_token.type == :TK_MINUS
@@ -157,12 +169,37 @@ class Parser
         return statement_list
     end
 
+    def call_args args_list = []
+        args_list << statement
+
+        if current_token.type == :TK_COMMA
+            next_token
+            call_args args_list
+        end
+
+        return args_list
+    end
+
     def simple_expr
         case current_token.type
         when :TK_IDENTIFIER
-            ident = Identifier.new(current_token.value)
+            ident = current_token
             next_token
-            return ident
+
+            if test_check_next :TK_OPENPAR
+                func = FunctionCall.new(ident.value)
+                
+                if !test_check_next :TK_CLOSEPAR
+                    func.args = call_args
+                end
+
+                check_next(:TK_CLOSEPAR)
+
+                return func
+            else
+                next_token
+                return Identifier.new(ident.value)
+            end
         when :TK_NUMBER
             number = Number.new(current_token.value)
             next_token
@@ -223,5 +260,8 @@ end
 f = File.open("test.nl", "r") 
 l = Lexer.new f.read
 p = Parser.new(l)
-p.parse[0].codegen
+p.parse.each do |func_list|
+    func_list.codegen
+    puts "\n\n\n\n"
+end
 f.close
