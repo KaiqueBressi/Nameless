@@ -5,5 +5,5 @@ defina fib :: inteiro -> inteiro
 fim
 
 defina principal :: inteiro
-	() = fib(5 + 2)
+	() = fib(7)
 fim
