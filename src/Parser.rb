@@ -172,12 +172,10 @@ class Parser
     def call_args args_list = []
         args_list << statement
 
-        puts args_list.inspect
-
-        #if current_token.type == :TK_COMMA
-        #    next_token
-        #    call_args args_list
-        #end
+        if current_token.type == :TK_COMMA
+            next_token
+            call_args args_list
+        end
 
         return args_list
     end
@@ -199,7 +197,6 @@ class Parser
 
                 return func
             else
-                next_token
                 return Identifier.new(ident.value)
             end
         when :TK_NUMBER

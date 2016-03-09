@@ -1,5 +1,7 @@
 defina fib :: inteiro -> inteiro
-	(x) = fib(5 + 2)
+	(0) = 1
+	(1) = 1
+	(x) = fib(x - 2) + fib(x - 1) 
 fim
 
 defina principal :: inteiro
