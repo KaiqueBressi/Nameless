@@ -10,26 +10,22 @@ class Function
 	end
 
 	def codegen
-		k = 0
-
 		for func_definition in definitions
 			if func_definition.arglist.count != (header.type_list.count - 1)
 				raise "Número de argumentos diferente do que da declaração"
 			end
 
-			puts func_definition.inspect
-
 			if func_definition.arglist.count > 0
-				case func_definition.arglist[k].type
-				when :TK_IDENTIFIER
-				when :TK_NUMBER
-					if header.type_list[k - 1].type != :TK_INT
-						raise "Definição da função incompativel com seus respectivos tipos"
+				func_definition.arglist.each do |argument|
+					case argument
+					when :TK_IDENTIFIER
+					when :TK_NUMBER
+						if header.type_list[k - 1].type != :TK_INT
+							raise "Definição da função incompativel com seus respectivos tipos"
+						end
 					end
-				end
+				end				
 			end
-
-			k += 1
 
 			func_definition.codegen
 		end
@@ -47,8 +43,8 @@ class FunctionDefinition
 		@block = block
 		@argcount = arglist.size
 		@bytecode = []
-		#codegen
-		#puts bytecode.inspect
+		codegen
+		puts bytecode.inspect
 	end
 
 	def codegen

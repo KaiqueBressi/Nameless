@@ -172,10 +172,12 @@ class Parser
     def call_args args_list = []
         args_list << statement
 
-        if current_token.type == :TK_COMMA
-            next_token
-            call_args args_list
-        end
+        puts args_list.inspect
+
+        #if current_token.type == :TK_COMMA
+        #    next_token
+        #    call_args args_list
+        #end
 
         return args_list
     end
@@ -262,6 +264,5 @@ l = Lexer.new f.read
 p = Parser.new(l)
 p.parse.each do |func_list|
     func_list.codegen
-    puts "\n\n\n\n"
 end
 f.close
