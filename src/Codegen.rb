@@ -28,6 +28,7 @@ class Function
 			end
 
 			func_definition.codegen
+			puts func_definition.bytecode.inspect
 		end
 	end
 end
@@ -43,8 +44,6 @@ class FunctionDefinition
 		@block = block
 		@argcount = arglist.size
 		@bytecode = []
-		codegen
-		puts bytecode.inspect
 	end
 
 	def codegen
@@ -60,7 +59,7 @@ class FunctionCall
 	attr_accessor :name
 	attr_accessor :args
 
-	def initialize name, args = []
+	def initialize name, args = {}
 		@name = name
 		@args = args
 	end

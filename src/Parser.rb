@@ -1,5 +1,6 @@
 require './Lexer.rb'
 require './Codegen.rb'
+require './VirtualMachine.rb'
 
 class Parser
     attr_reader :current_token
@@ -259,7 +260,7 @@ end
 f = File.open("test.nl", "r") 
 l = Lexer.new f.read
 p = Parser.new(l)
-p.parse.each do |func_list|
-    func_list.codegen
-end
+v = VirtualMachine.new p.parse
+v.compile
+v.main
 f.close
