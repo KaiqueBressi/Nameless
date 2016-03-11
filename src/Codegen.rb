@@ -28,7 +28,6 @@ class Function
 			end
 
 			func_definition.codegen
-			puts func_definition.bytecode.inspect
 		end
 	end
 end
@@ -128,6 +127,10 @@ class BinaryExpression
 			code << :VM_ADD
 		when :TK_MINUS
 			code << :VM_SUB
+		when :TK_MUL
+			code << :VM_MUL
+		when :TK_DIV
+			code << :VM_DIV
 		end
 
 		return code

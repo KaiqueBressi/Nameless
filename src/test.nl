@@ -1,9 +1,9 @@
-defina fib :: inteiro -> inteiro
+defina fat :: inteiro -> inteiro
 	(0) = 0
+	(x) = x * fat(x - 1) 
 	(1) = 1
-	(x) = fib(x - 1) + fib(x - 2)
 fim
 
 defina principal :: inteiro
-	() = fib(4)
+	() = fat(20)
 fim

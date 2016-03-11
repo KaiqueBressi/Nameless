@@ -3,6 +3,10 @@ require './Codegen.rb'
 require './VirtualMachine.rb'
 
 class Parser
+    Priorities = { :TK_PLUS => [1, :left], :TK_MINUS => [1, :left],  
+                   :TK_MUL  => [2, :left], :TK_DIV   => [2, :left],
+                   :TK_EXPO => [3, :right] }
+
     attr_reader :current_token
     attr_accessor :lexer
 
@@ -206,10 +210,6 @@ class Parser
             return number
         end
     end
-
-    Priorities = { :TK_PLUS => [1, :left], :TK_MINUS => [1, :left],  
-                   :"*"  => [2, :left], :"/" => [2, :left],
-                   :"**" => [3, :right] }
 
     def is_binop? token
         Priorities[token] || [0, nil]

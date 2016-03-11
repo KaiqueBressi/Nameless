@@ -1,6 +1,7 @@
 class VirtualMachine
 	attr_accessor :stack
 	attr_accessor :func_list
+	attr_accessor :test_test
 
 	def initialize func_list = []
 		@func_list = func_list
@@ -9,6 +10,8 @@ class VirtualMachine
 
 	def interpreter bytecode, arglist = {}
 		current_op = 0
+
+		puts stack.inspect
 
 		while current_op <= bytecode.count - 1
 			case bytecode[current_op]
@@ -20,7 +23,17 @@ class VirtualMachine
 				else
 					stack << argument
 				end
+
 				current_op += 2
+			when :VM_MUL
+				arg_one = stack[stack.count - 2]
+				arg_two = stack[stack.count - 1]
+
+				stack.pop
+				stack.pop
+				stack << arg_one * arg_two
+
+				current_op += 1
 			when :VM_SUB
 				arg_one = stack[stack.count - 2]
 				arg_two = stack[stack.count - 1]
@@ -54,13 +67,11 @@ class VirtualMachine
 
 							case arg.type
 							when :TK_NUMBER
-								if stack[stack.count - definition.arglist.count] == arg.value
+								if stack[stack.count - (i + 1)] == arg.value
 									matched = true
 								else
 									matched = false
 								end
-							when :TK_IDENTIFIER
-								matched = true
 							end
 						end
 
@@ -70,16 +81,13 @@ class VirtualMachine
 						end
 					end
 
-					puts matched_definition.bytecode.inspect
-					puts stack.inspect
-
 					call_args = Hash.new
 					
-					for i in (matched_definition.arglist.count - 1)..0
+					for i in 0..(matched_definition.arglist.count - 1)
 						arg = matched_definition.arglist[i]
 
 						if arg.type == :TK_IDENTIFIER
-							call_args[arg.value] = stack[i - stack.count] 
+							call_args[arg.value] = stack[stack.count - (i + 1)] 
 						end
 					end
 
@@ -87,18 +95,14 @@ class VirtualMachine
 						stack.pop
 					end
 
-					if stack.count > 10 
-						break
-					end
-
-					stack << interpreter(matched_definition.bytecode, call_args)
+					interpreter(matched_definition.bytecode, call_args)
 					current_op += 2
 				else
 					raise "A função \"" + func_name + "\" não foi encontrada"
 				end
 			when :VM_RETV
 				current_op += 1
-				return stack.pop
+				return nil
 			end
 		end
 	end
