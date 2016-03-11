@@ -59,8 +59,10 @@ class VirtualMachine
 				if func
 					matched_definition = nil
 
+					i = 0
+
 					func.definitions.each do |definition|
-						matched = true
+						@matched = true
 
 						for i in 0..definition.arglist.count - 1
 							arg = definition.arglist[i]
@@ -68,14 +70,21 @@ class VirtualMachine
 							case arg.type
 							when :TK_NUMBER
 								if stack[stack.count - (i + 1)] == arg.value
-									matched = true
+									@matched = true
 								else
-									matched = false
+									@matched = false
+									break
 								end
 							end
 						end
 
-						if matched == true
+						if i >= 2
+							puts matched_definition.inspect
+						end
+
+						i += 1
+
+						if @matched == true
 							matched_definition = definition
 							break
 						end

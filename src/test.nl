@@ -1,6 +1,6 @@
 defina fat :: inteiro -> inteiro
-	(0) = 0
 	(x) = x * fat(x - 1) 
+	(0) = 0
 	(1) = 1
 fim
 
