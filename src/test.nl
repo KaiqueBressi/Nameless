@@ -1,6 +1,6 @@
 defina module :: inteiro -> inteiro
-	(x) | x < 0 = x - x * 2
-	(x) | x > 0 = x
+	(x) = 6
+	(a) = 8
 fim
 
 defina lcm :: inteiro -> inteiro -> inteiro
@@ -13,6 +13,12 @@ defina gcd :: inteiro -> inteiro -> inteiro
 	(a, b) | b > a  = gcd(a, b - a)
 fim
 
+defina fibonacci :: inteiro -> inteiro
+	(0) = 0
+	(1) = 1
+	(x) = fibonacci(x - 2) + fibonacci(x - 1)
+fim
+
 defina principal :: inteiro
-	() = lcm(10, 88)
+	() = module(20)
 fim

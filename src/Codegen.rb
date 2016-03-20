@@ -24,7 +24,7 @@ class Function
 							raise "Definição da função incompativel com seus respectivos tipos"
 						end
 					end
-				end				
+				end
 			end
 
 			func_definition.codegen

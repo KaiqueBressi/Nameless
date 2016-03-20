@@ -53,7 +53,6 @@ class VirtualMachine
 				stack << (arg_one < arg_two)
 				current_op += 1
 			when :VM_GREATER
-				#puts stack.inspect
 				arg_one, arg_two = get_from_stack 2
 				stack << (arg_one > arg_two)
 				current_op += 1
@@ -142,11 +141,11 @@ class VirtualMachine
 			
 			if arg_def == stack[(stack.count - definition.arglist.count)..stack.count]
 				if matched_definition != nil	
-					if literal_count >= last_literal_count
+					if literal_count > last_literal_count
 						cond = check_condition(definition)
 
 						if cond
-							if literal_count == last_literal_count
+							if (literal_count == last_literal_count) and (definition.condition != nil)
 								raise "Definição ambiguia na função " + func.name
 							end
 
@@ -155,12 +154,19 @@ class VirtualMachine
 						elsif cond != false
 							raise "Condição inválida na função " + func.name
 						end
+					elsif literal_count == last_literal_count
+						cond = check_condition(definition)
+
+						if cond
+							raise "Definição ambiguia na função " + func.name
+						end
 					end
 				else
 					cond = check_condition(definition)
 
 					if cond
 						matched_definition = definition
+						last_literal_count = literal_count
 					elsif cond != false
 						raise "Condição inválida na função " + func.name
 					end

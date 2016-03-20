@@ -220,6 +220,7 @@ class Parser
             next_token
             return number
         when :TK_OPENPAR
+            next_token
             expr = expr_statement
             check_next(:TK_CLOSEPAR)
             return expr
