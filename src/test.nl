@@ -1,9 +1,18 @@
-defina fat :: inteiro -> inteiro
-	(x) = x * fat(x - 1) 
-	(0) = 0
-	(1) = 1
+defina module :: inteiro -> inteiro
+	(x) | x < 0 = x - x * 2
+	(x) | x > 0 = x
+fim
+
+defina lcm :: inteiro -> inteiro -> inteiro
+	(a, b) = module(a * b) / gcd(a, b)
+fim
+
+defina gcd :: inteiro -> inteiro -> inteiro
+	(a, a) = a
+	(a, b) | a > b  = gcd(a - b, b)
+	(a, b) | b > a  = gcd(a, b - a)
 fim
 
 defina principal :: inteiro
-	() = fat(20)
+	() = lcm(10, 88)
 fim

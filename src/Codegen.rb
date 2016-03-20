@@ -34,15 +34,17 @@ end
 
 class FunctionDefinition
 	attr_accessor :argcount
+	attr_accessor :condition
 	attr_accessor :arglist
 	attr_accessor :block
 	attr_accessor :bytecode
 
-	def initialize arglist, block
+	def initialize arglist, block, condition = nil
 		@arglist = arglist
 		@block = block
 		@argcount = arglist.size
 		@bytecode = []
+		@condition = condition.codegen if condition != nil
 	end
 
 	def codegen
@@ -131,6 +133,18 @@ class BinaryExpression
 			code << :VM_MUL
 		when :TK_DIV
 			code << :VM_DIV
+		when :TK_MOD
+			code << :VM_MOD
+		when :TK_LESSER
+			code << :VM_LESSER
+		when :TK_GREATER
+			code << :VM_GREATER
+		when :TK_DEQUAL
+			code << :VM_EQUAL
+		when :TK_AND
+			code << :VM_AND
+		when :TK_OR
+			code << :VM_OR
 		end
 
 		return code

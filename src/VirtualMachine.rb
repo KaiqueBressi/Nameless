@@ -1,17 +1,20 @@
 class VirtualMachine
 	attr_accessor :stack
 	attr_accessor :func_list
-	attr_accessor :test_test
 
 	def initialize func_list = []
 		@func_list = func_list
 		@stack = []
 	end
 
+	def get_from_stack count
+		arr = []
+		count.times { arr.unshift(stack.pop) }
+		return arr
+	end
+
 	def interpreter bytecode, arglist = {}
 		current_op = 0
-
-		puts stack.inspect
 
 		while current_op <= bytecode.count - 1
 			case bytecode[current_op]
@@ -26,69 +29,58 @@ class VirtualMachine
 
 				current_op += 2
 			when :VM_MUL
-				arg_one = stack[stack.count - 2]
-				arg_two = stack[stack.count - 1]
-
-				stack.pop
-				stack.pop
+				arg_one, arg_two = get_from_stack 2
 				stack << arg_one * arg_two
-
+				current_op += 1
+			when :VM_DIV
+				arg_one, arg_two = get_from_stack 2
+				stack << arg_one / arg_two
+				current_op += 1
+			when :VM_MOD
+				arg_one, arg_two = get_from_stack 2
+				stack << arg_one % arg_two
 				current_op += 1
 			when :VM_SUB
-				arg_one = stack[stack.count - 2]
-				arg_two = stack[stack.count - 1]
-
-				stack.pop
-				stack.pop
+				arg_one, arg_two = get_from_stack 2
 				stack << arg_one - arg_two
-
 				current_op += 1
 			when :VM_ADD
-				arg_one = stack[stack.count - 2]
-				arg_two = stack[stack.count - 1]
-
-				stack.pop
-				stack.pop	
+				arg_one, arg_two = get_from_stack 2
 				stack << arg_one + arg_two
-
+				current_op += 1
+			when :VM_LESSER
+				arg_one, arg_two = get_from_stack 2
+				stack << (arg_one < arg_two)
+				current_op += 1
+			when :VM_GREATER
+				#puts stack.inspect
+				arg_one, arg_two = get_from_stack 2
+				stack << (arg_one > arg_two)
+				current_op += 1
+			when :VM_AND
+				arg_one, arg_two = get_from_stack 2
+				stack << arg_one and arg_two
+				current_op += 1
+			when :VM_EQUAL
+				arg_one, arg_two = get_from_stack 2
+				stack << (arg_one == arg_two)
+				current_op += 1
+			when :VM_OR
+				arg_one, arg_two = get_from_stack 2
+				stack << arg_one and arg_two
 				current_op += 1
 			when :VM_CALL
 				func_name = bytecode[current_op + 1]
 				func = find_function(func_name)
 
+				last_literal_count = 0
+
 				if func
-					matched_definition = nil
+					matched_definition = find_definition(func)
 
-					i = 0
-
-					func.definitions.each do |definition|
-						@matched = true
-
-						for i in 0..definition.arglist.count - 1
-							arg = definition.arglist[i]
-
-							case arg.type
-							when :TK_NUMBER
-								if stack[stack.count - (i + 1)] == arg.value
-									@matched = true
-								else
-									@matched = false
-									break
-								end
-							end
-						end
-
-						if i >= 2
-							puts matched_definition.inspect
-						end
-
-						i += 1
-
-						if @matched == true
-							matched_definition = definition
-							break
-						end
-					end
+					if matched_definition == nil
+						raise "Nenhuma definição válida na função \"" + func.name + "\""
+ 					end
 
 					call_args = Hash.new
 					
@@ -96,13 +88,11 @@ class VirtualMachine
 						arg = matched_definition.arglist[i]
 
 						if arg.type == :TK_IDENTIFIER
-							call_args[arg.value] = stack[stack.count - (i + 1)] 
+							call_args[arg.value] = stack[stack.count - ((matched_definition.arglist.count - i))] 
 						end
 					end
 
-					matched_definition.arglist.count.times do 
-						stack.pop
-					end
+					matched_definition.arglist.count.times { stack.pop }
 
 					interpreter(matched_definition.bytecode, call_args)
 					current_op += 2
@@ -124,6 +114,76 @@ class VirtualMachine
 		end
 
 		return false
+	end
+
+	def find_definition func
+		matched_definition = nil
+
+		last_literal_count = 0
+
+		func.definitions.each do |definition|
+			literal_count = 0
+			arglist = definition.arglist
+
+			hash_args = Hash.new
+
+			arg_def = arglist.map.with_index do |arg, i| 
+				if arg.type == :TK_IDENTIFIER
+					if hash_args[arg.value] != nil
+						hash_args[arg.value]
+					else
+						hash_args[arg.value] = stack[stack.count - (definition.arglist.count - i)]
+					end
+				else
+					literal_count += 1
+					arg.value
+				end
+			end
+			
+			if arg_def == stack[(stack.count - definition.arglist.count)..stack.count]
+				if matched_definition != nil	
+					if literal_count >= last_literal_count
+						cond = check_condition(definition)
+
+						if cond
+							if literal_count == last_literal_count
+								raise "Definição ambiguia na função " + func.name
+							end
+
+							matched_definition = definition
+							last_literal_count = literal_count
+						elsif cond != false
+							raise "Condição inválida na função " + func.name
+						end
+					end
+				else
+					cond = check_condition(definition)
+
+					if cond
+						matched_definition = definition
+					elsif cond != false
+						raise "Condição inválida na função " + func.name
+					end
+				end
+			end
+		end
+
+		return matched_definition
+	end
+
+	def check_condition definition
+		arg_def = stack[(stack.count - definition.arglist.count)..stack.count]
+		call_args = Hash[definition.arglist.map{|a| a.value}.zip(arg_def)]
+
+		if definition.condition != nil
+			interpreter(definition.condition, call_args)
+
+			return_value = get_from_stack 1
+
+			return return_value[0]
+		end
+	
+		return true
 	end
 
 	def main

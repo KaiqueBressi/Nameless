@@ -4,8 +4,13 @@ require './VirtualMachine.rb'
 
 class Parser
     Priorities = { :TK_PLUS => [1, :left], :TK_MINUS => [1, :left],  
-                   :TK_MUL  => [2, :left], :TK_DIV   => [2, :left],
-                   :TK_EXPO => [3, :right] }
+                   :TK_MUL  => [2, :left], :TK_DIV   => [2, :left], :TK_MOD => [2, :left],
+                   :TK_EXPO => [3, :right],
+
+                   :TK_GREATER      => [4, :left], :TK_LESSER      => [4, :left], 
+                   :TK_GREATEREQUAL => [4, :left], :TK_LESSEREQUAL => [4, :left], 
+
+                   :TK_DEQUAL       => [5, :left]}
 
     attr_reader :current_token
     attr_accessor :lexer
@@ -130,15 +135,21 @@ class Parser
             func_header = FunctionHeader.new type_definition
 
             while check_next :TK_OPENPAR
+                cond = nil
+
                 args = arglist
 
                 check_next :TK_CLOSEPAR, false
+
+                if (test_check_next :TK_PIPELINE)
+                    cond = expr_statement
+                end
 
                 check_next :TK_EQUAL, false
 
                 stat = statement_block
 
-                func.definitions << FunctionDefinition.new(args, stat)
+                func.definitions << FunctionDefinition.new(args, stat, cond)
                 func.header = func_header
 
                 eat_eol
@@ -208,6 +219,10 @@ class Parser
             number = Number.new(current_token.value)
             next_token
             return number
+        when :TK_OPENPAR
+            expr = expr_statement
+            check_next(:TK_CLOSEPAR)
+            return expr
         end
     end
 
@@ -236,11 +251,11 @@ class Parser
 
             if operator[1] == :right
                 if (next_operator[0] >= operator[0]) 
-                    rhs = subexpr rhs, operator[0] 
+                    rhs = expression rhs, operator[0] 
                 end
             else
                 if (next_operator[0] > operator[0])
-                    rhs = subexpr rhs, operator[0] 
+                    rhs = expression rhs, operator[0] 
                 end
             end
 

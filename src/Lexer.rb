@@ -83,16 +83,25 @@ class Lexer
                 next_char
                 return Token.new :TK_EXPO, @line if check_next('*')     
                 return Token.new :TK_MUL, @line
+            when '/'
+                next_char
+                return Token.new :TK_DIV, @line
+            when '%'
+                next_char
+                return Token.new :TK_MOD, @line
             when ':'
                 next_char                
                 return Token.new :TK_DCOLON, @line if check_next(':')
                 return Token.new :TK_COLON, @line
             when '>'
                 next_char
-                return Token.new :TK_GREATER, @line
+                return Token.new(check_next('=') ? :TK_GREATEREQUAL : :TK_GREATER, @line)
             when '<'
                 next_char
-                return Token.new :TK_LESS, @line
+                return Token.new(check_next('=') ? :TK_LESSEREQUAL : :TK_LESSER, @line)
+            when '|'
+                next_char
+                return Token.new :TK_PIPELINE, @line
             else
                 if (current_char >= 'a') and (current_char <= 'z')
                     ident = skip_until_cond ->() { (current_char != nil) and is_alpha?(current_char) }
@@ -110,6 +119,8 @@ class Lexer
                     end
 
                     return Token.new :TK_NUMBER, @line, 0, number.to_i
+                else
+                    raise "Character não esperado no processo de análise léxica"
                 end
             end
         end
